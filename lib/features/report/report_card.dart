@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import '../../shared/widgets/section_card.dart';
+import '../../app/theme.dart';
+import '../../shared/widgets/ios_section.dart';
 import 'weekly_report.dart';
 
 class ReportCard extends StatelessWidget {
@@ -10,33 +11,25 @@ class ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SectionCard(
-      title: '近 7 天',
-      subtitle: report.loggedDays == 0
-          ? '还没有打卡。记下今晚，明天就能看到变化。'
-          : '已打卡 ${report.loggedDays} 天，其中准时 ${report.onTimeDays} 天。'
-                '平均推迟把准时记为 0，不含熬夜。',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _Metric(label: '准时率', value: _rate(report.onTimeRate)),
-              _Metric(label: '平均推迟', value: _delay(report.averageDelayMinutes)),
-              _Metric(label: '连续准时', value: '${report.streak} 天'),
-            ],
-          ),
-          if (report.stayedUpDays > 0) ...[
-            const SizedBox(height: 10),
-            Text(
-              '这 7 天里熬夜 ${report.stayedUpDays} 天',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+    final footer = report.loggedDays == 0
+        ? '还没有打卡。记下今晚，明天就能看到变化。'
+        : '已打卡 ${report.loggedDays} 天，其中准时 ${report.onTimeDays} 天。'
+              '平均推迟把准时记为 0，不含熬夜。'
+              '${report.stayedUpDays > 0 ? ' 这 7 天里熬夜 ${report.stayedUpDays} 天。' : ''}';
+    return IosSection(
+      header: '近 7 天',
+      footer: footer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          children: [
+            _Metric(label: '准时率', value: _rate(report.onTimeRate)),
+            const _Rule(),
+            _Metric(label: '平均推迟', value: _delay(report.averageDelayMinutes)),
+            const _Rule(),
+            _Metric(label: '连续准时', value: '${report.streak} 天'),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -68,21 +61,37 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = SleepPalette.of(context);
     return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            value,
+            style: IosType.metric(colors),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
-          Text(value, style: theme.textTheme.titleLarge),
+          Text(
+            label,
+            style: IosType.section(colors),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _Rule extends StatelessWidget {
+  const _Rule();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = SleepPalette.of(context);
+    return SizedBox(
+      width: 0.5,
+      height: 36,
+      child: ColoredBox(color: colors.separator),
     );
   }
 }

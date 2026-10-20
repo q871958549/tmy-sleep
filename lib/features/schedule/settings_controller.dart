@@ -64,6 +64,10 @@ class SettingsController extends ChangeNotifier {
     return update(settings.copyWith(snoozeMinutes: minutes));
   }
 
+  Future<void> setThemeMode(AppThemeMode mode) {
+    return update(settings.copyWith(themeMode: mode));
+  }
+
   Future<void> requestReminderAccess() async {
     access = await _scheduler.requestAccess(exactAlarms: true);
     notifyListeners();

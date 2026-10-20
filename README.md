@@ -2,20 +2,31 @@
 
 免费、开源的入睡作息记录应用。用 Flutter 写成，优先支持 Android，工程里保留了 iOS 工程，方便以后接上。
 
-它只做四件事：
+它做这些事：
 
 1. 设置目标入睡和起床时间（工作日，以及可选的周末）
 2. 到点发一条本地睡前提醒，可以稍后 15 或 30 分钟再提醒
 3. 一键打卡：准时、推迟、熬夜
 4. 看最近 7 天：准时率、平均推迟分钟、连续准时天数
+5. 首页「立即入睡」：在这台手机上记鼾声、梦话和异动
+
+界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。外观可以跟随系统、浅色或深色，默认深色。入睡记录那一页始终是深色，默认亮度大约两成，可以自己拖，点时间会暂时调亮。
 
 **永远免费。** 没有广告，没有内购，没有付费墙，也没有账号和云同步。打卡和设置都存在这台手机的 `shared_preferences` 里。
 
 许可：[MIT](LICENSE)。
 
+## 入睡记录
+
+首页「立即入睡」打开记录页。麦克风按大约一秒一段听音量，并看 100–1000 Hz 里有多少能量。连续大约两秒、又偏低沉的声音记为鼾声；更像说话的声音记为梦话。十秒内晃动够三次才记一次异动，单次抖动先丢掉。醒后每条能看到持续多久；声音还有相对手机满幅的峰值，这不是房间里的分贝计。这是粗略划分，不是医疗设备，也不能代替睡眠分期。
+
+记录页要保持打开，不要锁屏。锁屏或离开这一页后，这段记录就停了。不保存录音文件，也不上传。网页版不能录音，请在 Android 上使用。
+
+后面几版要做的事写在 [docs/roadmap.md](docs/roadmap.md)：短录音核对、锁屏后继续记、阈值和导出。深睡、浅睡、REM 不在计划里。
+
 ## 不会做的事
 
-穿戴设备、麦克风睡眠分期、AI 分析、云同步、社交、支付，都不在这个应用里。
+穿戴设备、医疗级睡眠分期、AI 分析、云同步、社交、支付，都不在这个应用里。
 
 ## 环境
 
@@ -46,9 +57,26 @@ flutter analyze
 flutter test
 ```
 
+推送到 GitHub 时，Actions 会再跑一遍这两条命令。
+
 首次启动且「到点提醒」开着时，会请求通知权限。精确闹钟不会在每次打开应用时自动跳进系统设置；在设置页点「申请权限」，或重新打开「到点提醒」时才会去申请。从系统设置返回后，应用会重新读取权限并重排提醒。数据写在本机，关掉应用再打开，作息和打卡还在。
 
 作息日在凌晨 4:00 切换。凌晨 4 点以前打卡，记在前一天晚上。
+
+## 更新
+
+发布包在 GitHub Releases：<https://github.com/q871958549/tmy-sleep/releases>。打上 `v*` 标签（例如 `v1.0.0`）后，Actions 会打 Android 安装包并挂到对应的 Release 上，文件名是 `tmy-sleep-v1.0.0.apk`。
+
+应用比较的是版本名（`1.0.0`），不是构建号。发布新版本前改 `pubspec.yaml` 的 `version`：版本名要比上一包高，`+` 后面的构建号也要加一，否则 Android 会拒绝覆盖安装。
+
+应用里的检查：
+
+- 每天凌晨 4 点后第一次打开，会向 GitHub 查最新的正式版。查到更新就弹出「发现新版本」。点「以后再说」后，首页仍留一条「可更新到 …」，当天不会再弹。下一天凌晨 4 点后再打开，如果还是新版本，会再提示一次。
+- 检查失败（没有网络、GitHub 暂时不可用）不会弹错误，也不会把这一天记成已检查，下次打开还会再试。
+- 设置页「作息 → 版本 → 检查更新」可以随时手动查。已经是最新版、发现新版本、或暂时查不了，都会给出说明。
+- Android 上点「立即更新」会下载 APK。如果系统还不允许安装未知来源应用，会先去设置；安装包会留在缓存里，回来再点一次不用重新下。其他平台打开 Release 页面。
+
+签名用的是仓库里的 `android/app/upload-keystore.jks`。同一把钥匙才能让后一个 APK 覆盖前一个。钥匙放在公开仓库里，是为了让 GitHub Actions 不用额外密钥也能打出可升级的包。请只安装本仓库 Releases 里的 APK。
 
 ## Android 通知和精确闹钟
 
@@ -86,6 +114,8 @@ lib/
   features/checkin/     打卡
   features/report/      7 天统计
   features/home/        首页
+  features/sleep/       入睡记录（鼾声、梦话、异动）
+  features/update/      GitHub Releases 检查与安装
   shared/
 ```
 
@@ -93,16 +123,23 @@ lib/
 
 tmy-sleep is a free, open-source Flutter app for people who want a steadier bedtime and wake time. Android is the first platform. The iOS runner is in the repo so it can be picked up later.
 
-The MVP lets you:
+The app lets you:
 
 1. Set a target bedtime and wake time for weekdays, with an optional weekend schedule
 2. Get a local bedtime notification, with a 15- or 30-minute snooze
 3. Check in with one tap: on time, delayed, or stayed up
 4. See a 7-day summary: on-time rate, average delay in minutes, and the current on-time streak
+5. Tap **立即入睡** and keep a local timeline of snoring, sleep talking, and movement
 
-There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings and check-ins stay on the device. The license is [MIT](LICENSE).
+The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Appearance can follow the system, or stay light or dark. The default is dark. The recording page stays dark, starts near 20% brightness, has a slider, and brightens for a few seconds when the clock is tapped.
 
-Wearables, microphone sleep staging, AI analysis, social features, and payments are out of scope.
+There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings, check-ins, and sleep notes stay on the device. The license is [MIT](LICENSE).
+
+**立即入睡** listens in roughly one-second slices and reads the phone's motion sensor. Snoring has to last about two seconds and carry energy between 100 Hz and 1000 Hz. Speech-like sound is stored as sleep talking. Three bumps inside ten seconds become one restless episode. Each line shows how long it lasted. Sounds also show how far the peak sits below digital full scale, which is not a calibrated room reading. It is a rough note, not a medical sleep stage. Leave that page open and do not lock the screen; locking stops the session. Audio is not saved and is not uploaded. The web build cannot record.
+
+Later releases are listed in [docs/roadmap.md](docs/roadmap.md): short clips for review, recording with the screen off, adjustable thresholds, and export. Deep, light, and REM labels are not in the plan.
+
+Wearables, medical sleep staging, AI analysis, social features, and payments are out of scope.
 
 ### Run on Android
 
@@ -117,6 +154,19 @@ flutter test
 ```
 
 The sleep night rolls over at 04:00 local time, so a check-in before then still belongs to the previous evening.
+
+### Updates
+
+GitHub Releases publishes the Android APK. Pushing a `v*` tag (for example `v1.0.0`) builds `tmy-sleep-<tag>.apk` and attaches it to that release.
+
+The in-app check compares version names (`1.0.0`), not build numbers. Before a release, bump `version` in `pubspec.yaml`. The name must be newer than the installed app, and the number after `+` must increase so Android accepts the upgrade.
+
+- After 04:00, the first time the app comes forward each sleep day, it asks GitHub for the latest stable release. A newer version opens a dialog. **以后再说** leaves a home row, **可更新到 …**, and does not ask again until the next sleep day.
+- A failed check stays quiet and does not consume that day, so the next launch tries again.
+- **作息 → 版本 → 检查更新** checks on demand and says whether you are current, an update exists, or GitHub could not be reached.
+- On Android, **立即更新** downloads the APK. If the system blocks unknown-app installs, the dialog sends you to that setting; the file stays cached. Other platforms open the release page.
+
+`android/app/upload-keystore.jks` is committed so every release APK shares a signature and can install over the previous one. The key is public for that reason. Install APKs only from this repository's Releases.
 
 On first launch, if bedtime reminders are on, the app asks for notification permission. It does not jump to the exact-alarm settings on every start. Use **申请权限** on the settings screen (or turn reminders off and on) for that. Coming back to the app refreshes the permission state and reschedules alarms.
 

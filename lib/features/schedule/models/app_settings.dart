@@ -1,6 +1,18 @@
 import '../../../shared/sleep_clock.dart';
 import 'day_schedule.dart';
 
+/// How the app chooses light or dark colors.
+enum AppThemeMode { system, light, dark }
+
+AppThemeMode themeModeFromName(Object? raw) {
+  for (final mode in AppThemeMode.values) {
+    if (mode.name == raw) {
+      return mode;
+    }
+  }
+  return AppThemeMode.dark;
+}
+
 /// User schedule and local reminder preferences.
 ///
 /// [snoozeMinutes] is either 15 or 30. There is no account, sync, or purchase
@@ -12,6 +24,7 @@ class AppSettings {
     required this.remindersEnabled,
     required this.snoozeMinutes,
     required this.useSeparateWeekend,
+    this.themeMode = AppThemeMode.dark,
   });
 
   final DaySchedule weekday;
@@ -19,6 +32,7 @@ class AppSettings {
   final bool remindersEnabled;
   final int snoozeMinutes;
   final bool useSeparateWeekend;
+  final AppThemeMode themeMode;
 
   static const defaults = AppSettings(
     weekday: DaySchedule.weekdayDefault,
@@ -48,6 +62,7 @@ class AppSettings {
     bool? remindersEnabled,
     int? snoozeMinutes,
     bool? useSeparateWeekend,
+    AppThemeMode? themeMode,
   }) {
     return AppSettings(
       weekday: weekday ?? this.weekday,
@@ -57,6 +72,7 @@ class AppSettings {
         snoozeMinutes ?? this.snoozeMinutes,
       ),
       useSeparateWeekend: useSeparateWeekend ?? this.useSeparateWeekend,
+      themeMode: themeMode ?? this.themeMode,
     );
   }
 
@@ -67,6 +83,7 @@ class AppSettings {
       'remindersEnabled': remindersEnabled,
       'snoozeMinutes': snoozeMinutes,
       'useSeparateWeekend': useSeparateWeekend,
+      'themeMode': themeMode.name,
     };
   }
 
@@ -85,6 +102,7 @@ class AppSettings {
       useSeparateWeekend: json['useSeparateWeekend'] is bool
           ? json['useSeparateWeekend'] as bool
           : defaults.useSeparateWeekend,
+      themeMode: themeModeFromName(json['themeMode']),
     );
   }
 
