@@ -7,8 +7,10 @@ gradle-wrapper.jar
 GeneratedPluginRegistrant.java
 .cxx/
 
-# Remember to never publicly share your keystore.
-# See https://flutter.dev/to/reference-keystore
+# Other keystores stay ignored. The upload key is committed so every GitHub
+# Release APK can install over the previous one. See the README.
 key.properties
 **/*.keystore
 **/*.jks
+!key.properties
+!app/upload-keystore.jks

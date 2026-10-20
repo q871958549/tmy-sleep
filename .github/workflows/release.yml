@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager --install \
+            "platforms;android-36" \
+            "build-tools;35.0.0" \
+            "ndk;28.2.13676358"
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --release
+
+      - name: Name the APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk "tmy-sleep-${GITHUB_REF_NAME}.apk"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: tmy-sleep ${{ github.ref_name }}
+          files: tmy-sleep-${{ github.ref_name }}.apk
+          fail_on_unmatched_files: true
+          body: |
+            Android 安装包。下载 APK 后直接安装。
+
+            已经装过 tmy-sleep 的话，打开应用会在每天凌晨 4 点后第一次进入时检查更新，也可以在「作息 → 版本」里手动检查。
+
+            请只安装本仓库 Releases 里的包。

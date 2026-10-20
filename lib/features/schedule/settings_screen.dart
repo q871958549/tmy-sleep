@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
 import '../../shared/widgets/ios_section.dart';
+import '../update/update_coordinator.dart';
+import '../update/update_prompt.dart';
 import 'models/day_schedule.dart';
 import 'settings_controller.dart';
 
@@ -39,10 +41,64 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  Future<void> _checkForUpdates() async {
+    final updates = context.read<UpdateCoordinator>();
+    if (updates.checking) {
+      return;
+    }
+    final result = await updates.manualCheck();
+    if (!mounted) {
+      return;
+    }
+    switch (result.kind) {
+      case ManualCheckKind.upToDate:
+        await _showNotice(
+          title: '已是最新版本',
+          message: '当前版本 ${updates.currentVersion}',
+        );
+      case ManualCheckKind.update:
+        final release = result.release;
+        if (release == null) {
+          return;
+        }
+        await showReleasePrompt(
+          context: context,
+          release: release,
+          currentVersion: updates.currentVersion,
+          installer: updates.installer,
+        );
+      case ManualCheckKind.failed:
+        await _showNotice(title: '暂时无法检查', message: '请稍后再试。需要能访问 GitHub。');
+    }
+  }
+
+  Future<void> _showNotice({required String title, required String message}) {
+    return showCupertinoDialog<void>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('好'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SettingsController>();
+    final updates = context.watch<UpdateCoordinator>();
     final settings = controller.settings;
+    final versionLabel = updates.checking
+        ? '检查中'
+        : updates.available == null
+        ? updates.currentVersion
+        : '新版本 ${updates.available!.version}';
 
     return CupertinoPageScaffold(
       backgroundColor: IosColors.background,
@@ -215,6 +271,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                         onTap: openAppSettings,
                       ),
                     ],
+                  ),
+                ),
+                IosSection(
+                  header: '版本',
+                  footer: '每天凌晨 4 点后第一次打开应用时会自动检查。发现新版本会提示，也可以在这里手动检查。安装包来自 GitHub Releases。',
+                  child: IosRow(
+                    title: '检查更新',
+                    value: versionLabel,
+                    trailing: updates.checking
+                        ? const CupertinoActivityIndicator()
+                        : null,
+                    showChevron: true,
+                    onTap: _checkForUpdates,
                   ),
                 ),
                 const Padding(

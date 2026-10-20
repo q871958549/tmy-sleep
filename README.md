@@ -54,6 +54,21 @@ flutter test
 
 作息日在凌晨 4:00 切换。凌晨 4 点以前打卡，记在前一天晚上。
 
+## 更新
+
+发布包在 GitHub Releases：<https://github.com/q871958549/tmy-sleep/releases>。打上 `v*` 标签（例如 `v1.0.0`）后，Actions 会打 Android 安装包并挂到对应的 Release 上，文件名是 `tmy-sleep-v1.0.0.apk`。
+
+应用比较的是版本名（`1.0.0`），不是构建号。发布新版本前改 `pubspec.yaml` 的 `version`：版本名要比上一包高，`+` 后面的构建号也要加一，否则 Android 会拒绝覆盖安装。
+
+应用里的检查：
+
+- 每天凌晨 4 点后第一次打开，会向 GitHub 查最新的正式版。查到更新就弹出「发现新版本」。点「以后再说」后，首页仍留一条「可更新到 …」，当天不会再弹。下一天凌晨 4 点后再打开，如果还是新版本，会再提示一次。
+- 检查失败（没有网络、GitHub 暂时不可用）不会弹错误，也不会把这一天记成已检查，下次打开还会再试。
+- 设置页「作息 → 版本 → 检查更新」可以随时手动查。已经是最新版、发现新版本、或暂时查不了，都会给出说明。
+- Android 上点「立即更新」会下载 APK。如果系统还不允许安装未知来源应用，会先去设置；安装包会留在缓存里，回来再点一次不用重新下。其他平台打开 Release 页面。
+
+签名用的是仓库里的 `android/app/upload-keystore.jks`。同一把钥匙才能让后一个 APK 覆盖前一个。钥匙放在公开仓库里，是为了让 GitHub Actions 不用额外密钥也能打出可升级的包。请只安装本仓库 Releases 里的 APK。
+
 ## Android 通知和精确闹钟
 
 睡前提醒用 `flutter_local_notifications` 排未来 7 次入睡时间。工作日和周末时间不同，所以按天分别排，而不是一条每天重复的闹钟。改设置或重新打开应用时会重排。
@@ -90,6 +105,7 @@ lib/
   features/checkin/     打卡
   features/report/      7 天统计
   features/home/        首页
+  features/update/      GitHub Releases 检查与安装
   shared/
 ```
 
@@ -123,6 +139,19 @@ flutter test
 ```
 
 The sleep night rolls over at 04:00 local time, so a check-in before then still belongs to the previous evening.
+
+### Updates
+
+GitHub Releases publishes the Android APK. Pushing a `v*` tag (for example `v1.0.0`) builds `tmy-sleep-<tag>.apk` and attaches it to that release.
+
+The in-app check compares version names (`1.0.0`), not build numbers. Before a release, bump `version` in `pubspec.yaml`. The name must be newer than the installed app, and the number after `+` must increase so Android accepts the upgrade.
+
+- After 04:00, the first time the app comes forward each sleep day, it asks GitHub for the latest stable release. A newer version opens a dialog. **以后再说** leaves a home row, **可更新到 …**, and does not ask again until the next sleep day.
+- A failed check stays quiet and does not consume that day, so the next launch tries again.
+- **作息 → 版本 → 检查更新** checks on demand and says whether you are current, an update exists, or GitHub could not be reached.
+- On Android, **立即更新** downloads the APK. If the system blocks unknown-app installs, the dialog sends you to that setting; the file stays cached. Other platforms open the release page.
+
+`android/app/upload-keystore.jks` is committed so every release APK shares a signature and can install over the previous one. The key is public for that reason. Install APKs only from this repository's Releases.
 
 On first launch, if bedtime reminders are on, the app asks for notification permission. It does not jump to the exact-alarm settings on every start. Use **申请权限** on the settings screen (or turn reminders off and on) for that. Coming back to the app refreshes the permission state and reschedules alarms.
 

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../features/checkin/checkin_controller.dart';
 import '../features/schedule/settings_controller.dart';
+import '../features/update/update_coordinator.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -13,11 +14,13 @@ class TmySleepApp extends StatefulWidget {
   const TmySleepApp({
     required this.settings,
     required this.checkIns,
+    required this.updates,
     super.key,
   });
 
   final SettingsController settings;
   final CheckInController checkIns;
+  final UpdateCoordinator updates;
 
   @override
   State<TmySleepApp> createState() => _TmySleepAppState();
@@ -32,6 +35,7 @@ class _TmySleepAppState extends State<TmySleepApp> {
       providers: [
         ChangeNotifierProvider.value(value: widget.settings),
         ChangeNotifierProvider.value(value: widget.checkIns),
+        ChangeNotifierProvider.value(value: widget.updates),
       ],
       child: MaterialApp.router(
         title: 'tmy-sleep',
