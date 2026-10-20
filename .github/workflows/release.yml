@@ -25,6 +25,9 @@ jobs:
           cache: true
 
       - uses: android-actions/setup-android@v3
+        with:
+          # The legacy "tools" package no longer exists. Ask only for platform-tools.
+          packages: platform-tools
 
       - name: Install Android SDK packages
         run: |
