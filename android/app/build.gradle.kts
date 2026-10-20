@@ -15,7 +15,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.tmysleep.tmy_sleep"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14 publishes an AAR that requires API 37.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
