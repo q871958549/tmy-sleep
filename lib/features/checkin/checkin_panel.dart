@@ -62,6 +62,7 @@ class CheckInPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selected = log?.checkIn;
+    final colors = SleepPalette.of(context);
     return IosSection(
       header: '今晚打卡',
       footer: log?.summary ?? '点一下就行。记错了可以改。',
@@ -71,18 +72,15 @@ class CheckInPanel extends StatelessWidget {
           width: double.infinity,
           child: CupertinoSlidingSegmentedControl<SleepCheckIn>(
             groupValue: selected,
-            thumbColor: IosColors.thumb,
-            backgroundColor: IosColors.background,
+            thumbColor: colors.thumb,
+            backgroundColor: colors.background,
             children: {
               for (final kind in SleepCheckIn.values)
                 kind: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
                     kind.label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: IosColors.label,
-                    ),
+                    style: IosType.row(colors).copyWith(fontSize: 15),
                   ),
                 ),
             },
@@ -107,10 +105,11 @@ class _DelaySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final colors = SleepPalette.of(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: IosColors.grouped,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      decoration: BoxDecoration(
+        color: colors.grouped,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Padding(
         padding: EdgeInsets.only(bottom: bottom),
@@ -122,13 +121,13 @@ class _DelaySheet extends StatelessWidget {
               width: 36,
               height: 5,
               decoration: BoxDecoration(
-                color: IosColors.separator,
+                color: colors.separator,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 14, 16, 6),
-              child: Text('推迟了多久？', style: IosType.row),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+              child: Text('推迟了多久？', style: IosType.row(colors)),
             ),
             for (final minutes in delayMinuteChoices) ...[
               const IosDivider(),
@@ -143,12 +142,15 @@ class _DelaySheet extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text('$minutes 分钟', style: IosType.row),
+                          child: Text(
+                            '$minutes 分钟',
+                            style: IosType.row(colors),
+                          ),
                         ),
                         if (selected == minutes)
-                          const Icon(
+                          Icon(
                             CupertinoIcons.check_mark,
-                            color: IosColors.accent,
+                            color: colors.accent,
                             size: 18,
                           ),
                       ],

@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/theme.dart';
+import 'models/app_settings.dart';
 import '../../shared/widgets/ios_section.dart';
 import '../update/update_coordinator.dart';
 import '../update/update_prompt.dart';
@@ -94,6 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     final controller = context.watch<SettingsController>();
     final updates = context.watch<UpdateCoordinator>();
     final settings = controller.settings;
+    final colors = SleepPalette.of(context);
     final versionLabel = updates.checking
         ? '检查中'
         : updates.available == null
@@ -101,11 +103,11 @@ class _SettingsScreenState extends State<SettingsScreen>
         : '新版本 ${updates.available!.version}';
 
     return CupertinoPageScaffold(
-      backgroundColor: IosColors.background,
+      backgroundColor: colors.background,
       child: CustomScrollView(
         slivers: [
-          const CupertinoSliverNavigationBar(
-            backgroundColor: IosColors.background,
+          CupertinoSliverNavigationBar(
+            backgroundColor: colors.background,
             border: null,
             previousPageTitle: '今晚',
             largeTitle: Text('作息'),
@@ -114,6 +116,42 @@ class _SettingsScreenState extends State<SettingsScreen>
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             sliver: SliverList.list(
               children: [
+                IosSection(
+                  header: '外观',
+                  footer: '可以选择浅色、深色，或跟着系统。入睡记录那一页保持深色，避免刺眼。',
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: CupertinoSlidingSegmentedControl<AppThemeMode>(
+                        groupValue: settings.themeMode,
+                        thumbColor: colors.thumb,
+                        backgroundColor: colors.background,
+                        children: {
+                          AppThemeMode.system: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text('跟随系统', style: IosType.section(colors)),
+                          ),
+                          AppThemeMode.light: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text('浅色', style: IosType.section(colors)),
+                          ),
+                          AppThemeMode.dark: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text('深色', style: IosType.section(colors)),
+                          ),
+                        },
+                        onValueChanged: (value) {
+                          if (value == null) {
+                            return;
+                          }
+                          HapticFeedback.selectionClick();
+                          controller.setThemeMode(value);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
                 IosSection(
                   header: '工作日',
                   footer: '周一到周五',
@@ -153,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         trailing: CupertinoSwitch(
                           key: const Key('weekend-switch'),
                           value: settings.useSeparateWeekend,
-                          activeTrackColor: IosColors.green,
+                          activeTrackColor: colors.green,
                           onChanged: (value) {
                             HapticFeedback.selectionClick();
                             controller.setUseSeparateWeekend(value);
@@ -201,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         trailing: CupertinoSwitch(
                           key: const Key('reminders-switch'),
                           value: settings.remindersEnabled,
-                          activeTrackColor: IosColors.green,
+                          activeTrackColor: colors.green,
                           onChanged: (value) {
                             HapticFeedback.selectionClick();
                             controller.setRemindersEnabled(value);
@@ -214,14 +252,14 @@ class _SettingsScreenState extends State<SettingsScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('稍后提醒', style: IosType.row),
+                            Text('稍后提醒', style: IosType.row(colors)),
                             const SizedBox(height: 10),
                             SizedBox(
                               width: double.infinity,
                               child: CupertinoSlidingSegmentedControl<int>(
                                 groupValue: settings.snoozeMinutes,
-                                thumbColor: IosColors.thumb,
-                                backgroundColor: IosColors.background,
+                                thumbColor: colors.thumb,
+                                backgroundColor: colors.background,
                                 children: const {
                                   15: Padding(
                                     padding: EdgeInsets.symmetric(vertical: 8),
@@ -286,11 +324,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                     onTap: _checkForUpdates,
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Text(
                     'tmy-sleep 完全免费，没有广告，也没有内购。',
-                    style: IosType.footnote,
+                    style: IosType.footnote(colors),
                   ),
                 ),
               ],
@@ -342,10 +380,11 @@ class _TimeSheetState extends State<_TimeSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final colors = SleepPalette.of(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: IosColors.grouped,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      decoration: BoxDecoration(
+        color: colors.grouped,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Padding(
         padding: EdgeInsets.only(bottom: bottom),

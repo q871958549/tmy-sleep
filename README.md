@@ -2,22 +2,29 @@
 
 免费、开源的入睡作息记录应用。用 Flutter 写成，优先支持 Android，工程里保留了 iOS 工程，方便以后接上。
 
-它只做四件事：
+它做这些事：
 
 1. 设置目标入睡和起床时间（工作日，以及可选的周末）
 2. 到点发一条本地睡前提醒，可以稍后 15 或 30 分钟再提醒
 3. 一键打卡：准时、推迟、熬夜
 4. 看最近 7 天：准时率、平均推迟分钟、连续准时天数
+5. 首页「立即入睡」：在这台手机上记鼾声、梦话和异动
 
-界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。配色用系统深色，方便睡前看。
+界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。外观可以跟随系统、浅色或深色，默认深色。入睡记录那一页始终是深色，并把亮度调低。
 
 **永远免费。** 没有广告，没有内购，没有付费墙，也没有账号和云同步。打卡和设置都存在这台手机的 `shared_preferences` 里。
 
 许可：[MIT](LICENSE)。
 
+## 入睡记录
+
+首页「立即入睡」打开记录页。麦克风按大约一秒一段听音量，手机传感器听晃动。低沉的声音记为鼾声，更像说话的声音记为梦话，明显晃动记为异动。这是粗略划分，不是医疗设备，也不能代替睡眠分期。
+
+记录页要保持打开，不要锁屏。锁屏或离开这一页后，这段记录就停了。不保存录音文件，也不上传。网页版不能录音，请在 Android 上使用。
+
 ## 不会做的事
 
-穿戴设备、麦克风睡眠分期、AI 分析、云同步、社交、支付，都不在这个应用里。
+穿戴设备、医疗级睡眠分期、AI 分析、云同步、社交、支付，都不在这个应用里。
 
 ## 环境
 
@@ -105,6 +112,7 @@ lib/
   features/checkin/     打卡
   features/report/      7 天统计
   features/home/        首页
+  features/sleep/       入睡记录（鼾声、梦话、异动）
   features/update/      GitHub Releases 检查与安装
   shared/
 ```
@@ -113,18 +121,21 @@ lib/
 
 tmy-sleep is a free, open-source Flutter app for people who want a steadier bedtime and wake time. Android is the first platform. The iOS runner is in the repo so it can be picked up later.
 
-The MVP lets you:
+The app lets you:
 
 1. Set a target bedtime and wake time for weekdays, with an optional weekend schedule
 2. Get a local bedtime notification, with a 15- or 30-minute snooze
 3. Check in with one tap: on time, delayed, or stayed up
 4. See a 7-day summary: on-time rate, average delay in minutes, and the current on-time streak
+5. Tap **立即入睡** and keep a local timeline of snoring, sleep talking, and movement
 
-The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Colors stay on the system dark palette so the screen is comfortable at bedtime.
+The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Appearance can follow the system, or stay light or dark. The default is dark. The recording page stays dark and dims the screen.
 
-There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings and check-ins stay on the device. The license is [MIT](LICENSE).
+There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings, check-ins, and sleep notes stay on the device. The license is [MIT](LICENSE).
 
-Wearables, microphone sleep staging, AI analysis, social features, and payments are out of scope.
+**立即入睡** listens in roughly one-second slices and reads the phone's motion sensor. A low rumble is stored as snoring, speech-like sound as sleep talking, and a hard movement as motion. It is a rough note, not a medical sleep stage. Leave that page open and do not lock the screen; locking stops the session. Audio is not saved and is not uploaded. The web build cannot record.
+
+Wearables, medical sleep staging, AI analysis, social features, and payments are out of scope.
 
 ### Run on Android
 

@@ -117,6 +117,7 @@ class _UpdateDialogState extends State<_UpdateDialog> {
   Widget build(BuildContext context) {
     final notes = widget.release.notes.trim();
     final actionLabel = widget.release.apkUrl == null ? '打开下载页' : '立即更新';
+    final colors = SleepPalette.of(context);
     return CupertinoAlertDialog(
       title: const Text('发现新版本'),
       content: Column(
@@ -124,25 +125,28 @@ class _UpdateDialogState extends State<_UpdateDialog> {
           const SizedBox(height: 8),
           Text(
             '当前 ${widget.currentVersion}，可更新到 ${widget.release.version}',
-            style: IosType.footnote.copyWith(color: IosColors.label),
+            style: IosType.footnote(colors).copyWith(color: colors.label),
           ),
           if (notes.isNotEmpty) ...[
             const SizedBox(height: 10),
             ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 140),
               child: SingleChildScrollView(
-                child: Text(notes, style: IosType.footnote),
+                child: Text(notes, style: IosType.footnote(colors)),
               ),
             ),
           ],
           if (_status != null) ...[
             const SizedBox(height: 12),
-            Text(_status!, style: IosType.footnote),
+            Text(_status!, style: IosType.footnote(colors)),
             const SizedBox(height: 8),
             if (_progress == null)
               const CupertinoActivityIndicator()
             else
-              Text('${(_progress! * 100).round()}%', style: IosType.row),
+              Text(
+                '${(_progress! * 100).round()}%',
+                style: IosType.row(colors),
+              ),
           ],
         ],
       ),

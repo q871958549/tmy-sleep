@@ -11,6 +11,8 @@ import '../checkin/checkin_controller.dart';
 import '../checkin/checkin_panel.dart';
 import '../report/report_card.dart';
 import '../schedule/settings_controller.dart';
+import '../sleep/models/sleep_event.dart';
+import '../sleep/sleep_controller.dart';
 import '../update/update_coordinator.dart';
 import '../update/update_prompt.dart';
 
@@ -94,16 +96,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final settingsController = context.watch<SettingsController>();
     final checkIns = context.watch<CheckInController>();
     final updates = context.watch<UpdateCoordinator>();
+    final sleep = context.watch<SleepSessionController>();
     final ready = settingsController.ready && checkIns.ready;
+    final colors = SleepPalette.of(context);
 
     return CupertinoPageScaffold(
-      backgroundColor: IosColors.background,
+      backgroundColor: colors.background,
       child: ready
           ? _HomeScroll(
               settingsController: settingsController,
               checkIns: checkIns,
               updateVersion: updates.available?.version,
               onUpdateTap: _openAvailable,
+              sleep: sleep,
             )
           : const Center(child: CupertinoActivityIndicator()),
     );
@@ -116,12 +121,14 @@ class _HomeScroll extends StatelessWidget {
     required this.checkIns,
     required this.updateVersion,
     required this.onUpdateTap,
+    required this.sleep,
   });
 
   final SettingsController settingsController;
   final CheckInController checkIns;
   final String? updateVersion;
   final VoidCallback onUpdateTap;
+  final SleepSessionController sleep;
 
   @override
   Widget build(BuildContext context) {
@@ -131,11 +138,14 @@ class _HomeScroll extends StatelessWidget {
     final needsPermission =
         settings.remindersEnabled &&
         !settingsController.access.notificationsGranted;
+    final colors = SleepPalette.of(context);
+    final tonight = sleep.sessionFor(night);
+    final sleepLabel = tonight != null && tonight.isOpen ? '回到记录' : '立即入睡';
 
     return CustomScrollView(
       slivers: [
         CupertinoSliverNavigationBar(
-          backgroundColor: IosColors.background,
+          backgroundColor: colors.background,
           border: null,
           largeTitle: const Text('今晚'),
           trailing: Tooltip(
@@ -175,25 +185,81 @@ class _HomeScroll extends StatelessWidget {
                   children: [
                     Text(
                       settings.scheduleKindLabel(night),
-                      style: IosType.section,
+                      style: IosType.section(colors),
                     ),
                     const SizedBox(height: 6),
-                    Text(schedule.bedtimeLabel, style: IosType.largeTime),
+                    Text(
+                      schedule.bedtimeLabel,
+                      style: IosType.largeTime(colors),
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       '起床 ${schedule.wakeLabel}',
-                      style: IosType.row.copyWith(color: IosColors.secondary),
+                      style: IosType.row(colors)
+                          .copyWith(color: colors.secondary),
                     ),
                   ],
                 ),
               ),
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton(
+                  key: const Key('sleep-now'),
+                  color: colors.accent,
+                  borderRadius: BorderRadius.circular(14),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  onPressed: () => context.push('/sleep'),
+                  child: Text(
+                    sleepLabel,
+                    style: IosType.row(colors).copyWith(
+                      color: colors.onAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 22),
+                child: Text(
+                  '点下去开始记鼾声、梦话和翻身。记录页会保持深色。',
+                  style: IosType.footnote(colors),
+                ),
+              ),
+              if (tonight != null && tonight.events.isNotEmpty)
+                IosSection(
+                  header: '今晚的记录',
+                  footer: tonight.note,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Row(
+                      children: [
+                        for (final kind in SleepEventKind.values)
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  '${tonight.countOf(kind)}',
+                                  style: IosType.metric(colors),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  kind.label,
+                                  style: IosType.section(colors),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
               CheckInPanel(log: checkIns.tonight),
               ReportCard(report: checkIns.report),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Text(
                   '数据只保存在这台手机上。完全免费，没有广告，也没有内购。',
-                  style: IosType.footnote,
+                  style: IosType.footnote(colors),
                 ),
               ),
             ],

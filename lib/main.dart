@@ -8,6 +8,9 @@ import 'core/storage/log_store.dart';
 import 'core/storage/settings_store.dart';
 import 'features/checkin/checkin_controller.dart';
 import 'features/schedule/settings_controller.dart';
+import 'features/sleep/sleep_controller.dart';
+import 'features/sleep/sleep_monitor.dart';
+import 'features/sleep/sleep_store.dart';
 import 'features/update/update_client.dart';
 import 'features/update/update_coordinator.dart';
 import 'features/update/update_installer.dart';
@@ -33,7 +36,19 @@ Future<void> main() async {
     prefs: prefs,
     currentVersion: await _currentVersion(),
   );
-  runApp(TmySleepApp(settings: settings, checkIns: checkIns, updates: updates));
+  final sleep = SleepSessionController(
+    store: SleepStore(prefs),
+    monitor: PlatformSleepMonitor(),
+  );
+  sleep.load();
+  runApp(
+    TmySleepApp(
+      settings: settings,
+      checkIns: checkIns,
+      updates: updates,
+      sleep: sleep,
+    ),
+  );
 }
 
 Future<String> _currentVersion() async {

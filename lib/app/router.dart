@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/home/home_screen.dart';
 import '../features/schedule/settings_screen.dart';
+import '../features/sleep/sleep_screen.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
@@ -11,6 +12,7 @@ GoRouter buildRouter() {
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+      GoRoute(path: '/sleep', builder: (context, state) => const SleepScreen()),
     ],
   );
 }

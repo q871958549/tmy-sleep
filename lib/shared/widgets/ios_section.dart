@@ -12,6 +12,7 @@ class IosSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = SleepPalette.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 28),
       child: Column(
@@ -20,11 +21,11 @@ class IosSection extends StatelessWidget {
           if (header != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(header!, style: IosType.section),
+              child: Text(header!, style: IosType.section(colors)),
             ),
           DecoratedBox(
             decoration: BoxDecoration(
-              color: IosColors.grouped,
+              color: colors.grouped,
               borderRadius: BorderRadius.circular(16),
             ),
             child: ClipRRect(
@@ -35,7 +36,7 @@ class IosSection extends StatelessWidget {
           if (footer != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Text(footer!, style: IosType.footnote),
+              child: Text(footer!, style: IosType.footnote(colors)),
             ),
         ],
       ),
@@ -48,13 +49,14 @@ class IosDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: IosColors.grouped,
+    final colors = SleepPalette.of(context);
+    return ColoredBox(
+      color: colors.grouped,
       child: Padding(
-        padding: EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 16),
         child: ColoredBox(
-          color: IosColors.separator,
-          child: SizedBox(height: 0.5, width: double.infinity),
+          color: colors.separator,
+          child: const SizedBox(height: 0.5, width: double.infinity),
         ),
       ),
     );
@@ -80,24 +82,25 @@ class IosRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = SleepPalette.of(context);
     final row = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 52),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
-            Expanded(child: Text(title, style: IosType.row)),
+            Expanded(child: Text(title, style: IosType.row(colors))),
             if (value != null) ...[
               const SizedBox(width: 12),
-              Text(value!, style: IosType.value),
+              Text(value!, style: IosType.value(colors)),
             ],
             if (trailing != null) ...[const SizedBox(width: 8), trailing!],
             if (showChevron) ...[
               const SizedBox(width: 6),
-              const Icon(
+              Icon(
                 CupertinoIcons.chevron_right,
                 size: 14,
-                color: IosColors.tertiary,
+                color: colors.tertiary,
               ),
             ],
           ],

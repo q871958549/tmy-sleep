@@ -61,12 +61,21 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = SleepPalette.of(context);
     return Expanded(
       child: Column(
         children: [
-          Text(value, style: IosType.metric, textAlign: TextAlign.center),
+          Text(
+            value,
+            style: IosType.metric(colors),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 4),
-          Text(label, style: IosType.section, textAlign: TextAlign.center),
+          Text(
+            label,
+            style: IosType.section(colors),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -78,10 +87,11 @@ class _Rule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    final colors = SleepPalette.of(context);
+    return SizedBox(
       width: 0.5,
       height: 36,
-      child: ColoredBox(color: IosColors.separator),
+      child: ColoredBox(color: colors.separator),
     );
   }
 }

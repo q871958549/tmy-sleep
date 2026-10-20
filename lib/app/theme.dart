@@ -1,124 +1,228 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// iOS system dark colors. The sleep screen stays dark on every platform.
-abstract final class IosColors {
-  static const background = Color(0xFF000000);
-  static const grouped = Color(0xFF1C1C1E);
-  static const elevated = Color(0xFF2C2C2E);
-  static const thumb = Color(0xFF636366);
-  static const separator = Color(0xFF38383A);
-  static const label = Color(0xFFFFFFFF);
-  static const secondary = Color(0xFF8E8E93);
-  static const tertiary = Color(0xFF636366);
-  static const accent = Color(0xFF0A84FF);
-  static const green = Color(0xFF30D158);
+/// iOS grouped colors for one brightness.
+///
+/// Text styles set [TextDecoration.none] and do not inherit. Without that,
+/// text under [CupertinoPageScaffold] picks up Material's fallback style:
+/// a yellow double underline.
+class SleepPalette {
+  const SleepPalette({
+    required this.background,
+    required this.grouped,
+    required this.elevated,
+    required this.thumb,
+    required this.separator,
+    required this.label,
+    required this.secondary,
+    required this.tertiary,
+    required this.accent,
+    required this.onAccent,
+    required this.green,
+  });
+
+  final Color background;
+  final Color grouped;
+  final Color elevated;
+  final Color thumb;
+  final Color separator;
+  final Color label;
+  final Color secondary;
+  final Color tertiary;
+  final Color accent;
+  final Color onAccent;
+  final Color green;
+
+  static const dark = SleepPalette(
+    background: Color(0xFF000000),
+    grouped: Color(0xFF1C1C1E),
+    elevated: Color(0xFF2C2C2E),
+    thumb: Color(0xFF636366),
+    separator: Color(0xFF38383A),
+    label: Color(0xFFFFFFFF),
+    secondary: Color(0xFF8E8E93),
+    tertiary: Color(0xFF636366),
+    accent: Color(0xFF0A84FF),
+    onAccent: Color(0xFFFFFFFF),
+    green: Color(0xFF30D158),
+  );
+
+  static const light = SleepPalette(
+    background: Color(0xFFF2F2F7),
+    grouped: Color(0xFFFFFFFF),
+    elevated: Color(0xFFE5E5EA),
+    thumb: Color(0xFFFFFFFF),
+    separator: Color(0xFFC6C6C8),
+    label: Color(0xFF000000),
+    secondary: Color(0xFF6C6C70),
+    tertiary: Color(0xFF8E8E93),
+    accent: Color(0xFF007AFF),
+    onAccent: Color(0xFFFFFFFF),
+    green: Color(0xFF34C759),
+  );
+
+  static SleepPalette of(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? dark : light;
+  }
 }
 
 abstract final class IosType {
-  static const largeTime = TextStyle(
-    fontSize: 64,
-    fontWeight: FontWeight.w300,
-    height: 1,
-    letterSpacing: -1.2,
-    color: IosColors.label,
-    fontFeatures: [FontFeature.tabularFigures()],
-  );
+  static const _features = [FontFeature.tabularFigures()];
 
-  static const section = TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w400,
-    color: IosColors.secondary,
-    height: 1.25,
-  );
+  static TextStyle largeTime(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 64,
+      fontWeight: FontWeight.w300,
+      height: 1,
+      letterSpacing: -1.2,
+      color: colors.label,
+      fontFeatures: _features,
+    );
+  }
 
-  static const row = TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w400,
-    color: IosColors.label,
-    height: 1.2,
-  );
+  static TextStyle section(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: colors.secondary,
+      height: 1.25,
+    );
+  }
 
-  static const value = TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w400,
-    color: IosColors.accent,
-    height: 1.2,
-    fontFeatures: [FontFeature.tabularFigures()],
-  );
+  static TextStyle row(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
+      color: colors.label,
+      height: 1.2,
+    );
+  }
 
-  static const footnote = TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w400,
-    color: IosColors.secondary,
-    height: 1.35,
-  );
+  static TextStyle value(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 17,
+      fontWeight: FontWeight.w400,
+      color: colors.accent,
+      height: 1.2,
+      fontFeatures: _features,
+    );
+  }
 
-  static const metric = TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.w600,
-    color: IosColors.label,
-    height: 1.15,
-    fontFeatures: [FontFeature.tabularFigures()],
-  );
+  static TextStyle footnote(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 13,
+      fontWeight: FontWeight.w400,
+      color: colors.secondary,
+      height: 1.35,
+    );
+  }
+
+  static TextStyle metric(SleepPalette colors) {
+    return TextStyle(
+      inherit: false,
+      decoration: TextDecoration.none,
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
+      color: colors.label,
+      height: 1.15,
+      fontFeatures: _features,
+    );
+  }
 }
 
-CupertinoThemeData buildCupertinoTheme() {
-  const text = TextStyle(
+CupertinoThemeData buildCupertinoTheme(
+  SleepPalette colors,
+  Brightness brightness,
+) {
+  final text = TextStyle(
+    inherit: false,
+    decoration: TextDecoration.none,
     fontSize: 17,
-    color: IosColors.label,
+    color: colors.label,
     letterSpacing: -0.2,
   );
-  return const CupertinoThemeData(
-    brightness: Brightness.dark,
-    primaryColor: IosColors.accent,
-    scaffoldBackgroundColor: IosColors.background,
-    barBackgroundColor: IosColors.background,
+  return CupertinoThemeData(
+    brightness: brightness,
+    primaryColor: colors.accent,
+    scaffoldBackgroundColor: colors.background,
+    barBackgroundColor: colors.background,
     textTheme: CupertinoTextThemeData(
       textStyle: text,
       navTitleTextStyle: TextStyle(
+        inherit: false,
+        decoration: TextDecoration.none,
         fontSize: 17,
         fontWeight: FontWeight.w600,
-        color: IosColors.label,
+        color: colors.label,
       ),
       navLargeTitleTextStyle: TextStyle(
+        inherit: false,
+        decoration: TextDecoration.none,
         fontSize: 34,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.2,
-        color: IosColors.label,
+        color: colors.label,
       ),
-      pickerTextStyle: TextStyle(fontSize: 21, color: IosColors.label),
-      actionTextStyle: TextStyle(fontSize: 17, color: IosColors.accent),
+      pickerTextStyle: TextStyle(
+        inherit: false,
+        decoration: TextDecoration.none,
+        fontSize: 21,
+        color: colors.label,
+      ),
+      actionTextStyle: TextStyle(
+        inherit: false,
+        decoration: TextDecoration.none,
+        fontSize: 17,
+        color: colors.accent,
+      ),
     ),
   );
 }
 
-ThemeData buildTheme() {
-  const scheme = ColorScheme.dark(
-    primary: IosColors.accent,
-    onPrimary: IosColors.label,
-    secondary: IosColors.accent,
-    surface: IosColors.grouped,
-    onSurface: IosColors.label,
-    onSurfaceVariant: IosColors.secondary,
+ThemeData buildTheme(SleepPalette colors, Brightness brightness) {
+  final scheme = ColorScheme(
+    brightness: brightness,
+    primary: colors.accent,
+    onPrimary: colors.onAccent,
+    secondary: colors.accent,
+    onSecondary: colors.onAccent,
+    surface: colors.grouped,
+    onSurface: colors.label,
+    onSurfaceVariant: colors.secondary,
+    error: const Color(0xFFFF453A),
+    onError: colors.onAccent,
   );
+  final row = IosType.row(colors);
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: brightness,
     colorScheme: scheme,
-    scaffoldBackgroundColor: IosColors.background,
+    scaffoldBackgroundColor: colors.background,
     splashFactory: NoSplash.splashFactory,
-    highlightColor: const Color(0x14FFFFFF),
-    textTheme: const TextTheme(
-      bodyLarge: IosType.row,
-      bodyMedium: IosType.row,
-      bodySmall: IosType.footnote,
-      titleLarge: IosType.metric,
+    highlightColor: brightness == Brightness.dark
+        ? const Color(0x14FFFFFF)
+        : const Color(0x14000000),
+    textTheme: TextTheme(
+      bodyLarge: row,
+      bodyMedium: row,
+      bodySmall: IosType.footnote(colors),
+      titleLarge: IosType.metric(colors),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: IosColors.elevated,
-      contentTextStyle: IosType.row,
+      backgroundColor: colors.elevated,
+      contentTextStyle: row,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
