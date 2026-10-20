@@ -118,6 +118,12 @@ class NotificationService implements BedtimeScheduler {
 
   @override
   Future<ScheduleResult> reschedule(AppSettings settings) async {
+    if (kIsWeb) {
+      return const ScheduleResult(
+        usedExact: false,
+        note: '网页里不会发送睡前提醒。请在 Android 上使用。',
+      );
+    }
     try {
       await _cancelBedtimeAlarms();
       if (!settings.remindersEnabled) {
@@ -138,7 +144,7 @@ class NotificationService implements BedtimeScheduler {
       );
     } catch (error, stackTrace) {
       debugPrint('reschedule failed: $error\n$stackTrace');
-      return ScheduleResult(usedExact: false, note: '睡前提醒暂时没有排上：$error');
+      return const ScheduleResult(usedExact: false, note: '这台设备暂时排不上睡前提醒。');
     }
   }
 

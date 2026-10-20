@@ -9,6 +9,8 @@
 3. 一键打卡：准时、推迟、熬夜
 4. 看最近 7 天：准时率、平均推迟分钟、连续准时天数
 
+界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。配色用系统深色，方便睡前看。
+
 **永远免费。** 没有广告，没有内购，没有付费墙，也没有账号和云同步。打卡和设置都存在这台手机的 `shared_preferences` 里。
 
 许可：[MIT](LICENSE)。
@@ -45,6 +47,8 @@ flutter run -d <deviceId>
 flutter analyze
 flutter test
 ```
+
+推送到 GitHub 时，Actions 会再跑一遍这两条命令。
 
 首次启动且「到点提醒」开着时，会请求通知权限。精确闹钟不会在每次打开应用时自动跳进系统设置；在设置页点「申请权限」，或重新打开「到点提醒」时才会去申请。从系统设置返回后，应用会重新读取权限并重排提醒。数据写在本机，关掉应用再打开，作息和打卡还在。
 
@@ -99,6 +103,8 @@ The MVP lets you:
 2. Get a local bedtime notification, with a 15- or 30-minute snooze
 3. Check in with one tap: on time, delayed, or stayed up
 4. See a 7-day summary: on-time rate, average delay in minutes, and the current on-time streak
+
+The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Colors stay on the system dark palette so the screen is comfortable at bedtime.
 
 There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings and check-ins stay on the device. The license is [MIT](LICENSE).
 

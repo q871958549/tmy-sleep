@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +36,20 @@ class _TmySleepAppState extends State<TmySleepApp> {
       child: MaterialApp.router(
         title: 'tmy-sleep',
         theme: buildTheme(),
+        scrollBehavior: const MaterialScrollBehavior().copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.stylus,
+          },
+        ),
+        builder: (context, child) {
+          return CupertinoTheme(
+            data: buildCupertinoTheme(),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
         routerConfig: _router,
       ),
     );
