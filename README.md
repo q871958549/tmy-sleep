@@ -10,7 +10,7 @@
 4. 看最近 7 天：准时率、平均推迟分钟、连续准时天数
 5. 首页「立即入睡」：在这台手机上记鼾声、梦话和异动
 
-界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。外观可以跟随系统、浅色或深色，默认深色。入睡记录那一页始终是深色，并把亮度调低。
+界面按 iOS 分组列表来排：大标题、内缩圆角分组、滑动分段控制、底部时间轮和推迟时长选择。Android 和以后的 iOS 用同一套排版。外观可以跟随系统、浅色或深色，默认深色。入睡记录那一页始终是深色，默认亮度大约两成，可以自己拖，点时间会暂时调亮。
 
 **永远免费。** 没有广告，没有内购，没有付费墙，也没有账号和云同步。打卡和设置都存在这台手机的 `shared_preferences` 里。
 
@@ -18,9 +18,11 @@
 
 ## 入睡记录
 
-首页「立即入睡」打开记录页。麦克风按大约一秒一段听音量，手机传感器听晃动。低沉的声音记为鼾声，更像说话的声音记为梦话，明显晃动记为异动。这是粗略划分，不是医疗设备，也不能代替睡眠分期。
+首页「立即入睡」打开记录页。麦克风按大约一秒一段听音量，并看 100–1000 Hz 里有多少能量。连续大约两秒、又偏低沉的声音记为鼾声；更像说话的声音记为梦话。十秒内晃动够三次才记一次异动，单次抖动先丢掉。醒后每条能看到持续多久；声音还有相对手机满幅的峰值，这不是房间里的分贝计。这是粗略划分，不是医疗设备，也不能代替睡眠分期。
 
 记录页要保持打开，不要锁屏。锁屏或离开这一页后，这段记录就停了。不保存录音文件，也不上传。网页版不能录音，请在 Android 上使用。
+
+后面几版要做的事写在 [docs/roadmap.md](docs/roadmap.md)：短录音核对、锁屏后继续记、阈值和导出。深睡、浅睡、REM 不在计划里。
 
 ## 不会做的事
 
@@ -129,11 +131,13 @@ The app lets you:
 4. See a 7-day summary: on-time rate, average delay in minutes, and the current on-time streak
 5. Tap **立即入睡** and keep a local timeline of snoring, sleep talking, and movement
 
-The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Appearance can follow the system, or stay light or dark. The default is dark. The recording page stays dark and dims the screen.
+The layout follows iOS grouped lists: large titles, inset rounded groups, a sliding segmented control, and bottom sheets for the time wheel and delay choices. Android and the future iOS build share that layout. Appearance can follow the system, or stay light or dark. The default is dark. The recording page stays dark, starts near 20% brightness, has a slider, and brightens for a few seconds when the clock is tapped.
 
 There is no monetization. No ads, no in-app purchases, no paywall, no account, and no cloud sync. Settings, check-ins, and sleep notes stay on the device. The license is [MIT](LICENSE).
 
-**立即入睡** listens in roughly one-second slices and reads the phone's motion sensor. A low rumble is stored as snoring, speech-like sound as sleep talking, and a hard movement as motion. It is a rough note, not a medical sleep stage. Leave that page open and do not lock the screen; locking stops the session. Audio is not saved and is not uploaded. The web build cannot record.
+**立即入睡** listens in roughly one-second slices and reads the phone's motion sensor. Snoring has to last about two seconds and carry energy between 100 Hz and 1000 Hz. Speech-like sound is stored as sleep talking. Three bumps inside ten seconds become one restless episode. Each line shows how long it lasted. Sounds also show how far the peak sits below digital full scale, which is not a calibrated room reading. It is a rough note, not a medical sleep stage. Leave that page open and do not lock the screen; locking stops the session. Audio is not saved and is not uploaded. The web build cannot record.
+
+Later releases are listed in [docs/roadmap.md](docs/roadmap.md): short clips for review, recording with the screen off, adjustable thresholds, and export. Deep, light, and REM labels are not in the plan.
 
 Wearables, medical sleep staging, AI analysis, social features, and payments are out of scope.
 

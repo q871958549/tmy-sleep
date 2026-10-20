@@ -1,3 +1,7 @@
+import 'dart:math' as math;
+
+import '../../../shared/sleep_clock.dart';
+
 enum SleepEventKind { snore, talk, motion }
 
 extension SleepEventKindLabel on SleepEventKind {
@@ -28,6 +32,19 @@ class SleepEvent {
   final double intensity;
 
   Duration get duration => endedAt.difference(startedAt);
+
+  String get clockLabel => formatHm(startedAt.hour, startedAt.minute);
+
+  /// Duration, and for sounds how far the peak sits below digital full scale.
+  String get detail {
+    final length = _formatLength(duration);
+    if (kind == SleepEventKind.motion) {
+      return length;
+    }
+    return '$length · 峰值低 ${_dbBelowFullScale(intensity)} dB';
+  }
+
+  String get line => '$clockLabel  ${kind.label}  $detail';
 
   SleepEvent extendTo(DateTime at, double nextIntensity) {
     final end = at.isAfter(endedAt) ? at : endedAt;
@@ -76,4 +93,25 @@ class SleepEvent {
       intensity: intensity is num ? intensity.toDouble().clamp(0, 1) : 0,
     );
   }
+}
+
+int _dbBelowFullScale(double rms) {
+  final safe = rms.clamp(0.0001, 1.0);
+  return (-20 * math.log(safe) / math.ln10).round();
+}
+
+String _formatLength(Duration duration) {
+  final seconds = duration.inSeconds;
+  if (seconds < 1) {
+    return '约 1 秒';
+  }
+  if (seconds < 60) {
+    return '$seconds 秒';
+  }
+  final minutes = seconds ~/ 60;
+  final rest = seconds % 60;
+  if (rest == 0) {
+    return '$minutes 分钟';
+  }
+  return '$minutes 分 $rest 秒';
 }

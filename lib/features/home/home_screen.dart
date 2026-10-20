@@ -228,29 +228,58 @@ class _HomeScroll extends StatelessWidget {
               if (tonight != null && tonight.events.isNotEmpty)
                 IosSection(
                   header: '今晚的记录',
-                  footer: tonight.note,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Row(
-                      children: [
-                        for (final kind in SleepEventKind.values)
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Text(
-                                  '${tonight.countOf(kind)}',
-                                  style: IosType.metric(colors),
+                  footer: tonight.note ?? '每条记下持续多久。声音还有相对满幅的峰值，不是房间里的分贝计。',
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          children: [
+                            for (final kind in SleepEventKind.values)
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${tonight.countOf(kind)}',
+                                      style: IosType.metric(colors),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      kind.label,
+                                      style: IosType.section(colors),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  kind.label,
-                                  style: IosType.section(colors),
-                                ),
-                              ],
-                            ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      for (final event in tonight.events.reversed.take(8)) ...[
+                        const IosDivider(),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                event.clockLabel,
+                                style: IosType.row(colors),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  '${event.kind.label}  ${event.detail}',
+                                  style: IosType.value(colors),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               CheckInPanel(log: checkIns.tonight),

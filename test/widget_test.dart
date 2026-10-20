@@ -189,14 +189,17 @@ void main() {
 
     expect(find.text('我醒了'), findsOneWidget);
     expect(find.text('21:30'), findsOneWidget);
-    expect(find.text('21:30  鼾声'), findsOneWidget);
-    expect(find.text('21:30  梦话'), findsOneWidget);
-    expect(find.text('21:30  异动'), findsOneWidget);
+    expect(find.text('亮度'), findsOneWidget);
+    expect(find.textContaining('21:30  鼾声'), findsOneWidget);
+    expect(find.textContaining('21:30  梦话'), findsOneWidget);
+    expect(find.textContaining('21:30  异动'), findsOneWidget);
+    expect(find.textContaining('峰值低 14 dB'), findsOneWidget);
 
     await tester.tap(find.text('我醒了'));
     await tester.pumpAndSettle();
 
     expect(find.text('今晚的记录'), findsOneWidget);
+    expect(find.textContaining('峰值低 14 dB'), findsOneWidget);
     expect(find.text('立即入睡'), findsOneWidget);
   });
 

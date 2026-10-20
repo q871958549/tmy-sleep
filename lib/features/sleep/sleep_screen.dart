@@ -20,7 +20,13 @@ class SleepScreen extends StatefulWidget {
 }
 
 class _SleepScreenState extends State<SleepScreen> {
+  static const _dimmest = 0.12;
+  static const _bedside = 0.22;
+  static const _glance = 0.7;
+
   final _brightness = ScreenBrightness();
+  var _level = _bedside;
+  Timer? _glanceTimer;
 
   @override
   void initState() {
@@ -44,11 +50,28 @@ class _SleepScreenState extends State<SleepScreen> {
     } catch (error, stackTrace) {
       debugPrint('wakelock failed: $error\n$stackTrace');
     }
+    await _apply(_level);
+  }
+
+  Future<void> _apply(double level) async {
     try {
-      await _brightness.setApplicationScreenBrightness(0.02);
+      await _brightness.setApplicationScreenBrightness(
+        level.clamp(_dimmest, 1),
+      );
     } catch (error, stackTrace) {
       debugPrint('brightness failed: $error\n$stackTrace');
     }
+  }
+
+  void _glanceAtClock() {
+    _glanceTimer?.cancel();
+    unawaited(_apply(_glance));
+    _glanceTimer = Timer(const Duration(seconds: 8), () {
+      if (!mounted) {
+        return;
+      }
+      unawaited(_apply(_level));
+    });
   }
 
   Future<void> _finish() async {
@@ -74,6 +97,7 @@ class _SleepScreenState extends State<SleepScreen> {
 
   @override
   void dispose() {
+    _glanceTimer?.cancel();
     unawaited(_releaseHardware());
     super.dispose();
   }
@@ -81,6 +105,8 @@ class _SleepScreenState extends State<SleepScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = SleepPalette.dark;
+    final noteStyle = IosType.footnote(colors)
+        .copyWith(color: const Color(0xFFD1D1D6));
     final session = context.watch<SleepSessionController>();
     final active = session.active;
     final events = active?.events ?? const [];
@@ -98,22 +124,27 @@ class _SleepScreenState extends State<SleepScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('正在记录', style: IosType.section(colors)),
-                    const SizedBox(height: 8),
                     Text(
-                      active == null
-                          ? '准备中'
-                          : formatHm(
-                              active.startedAt.hour,
-                              active.startedAt.minute,
-                            ),
-                      style: IosType.largeTime(colors),
+                      '正在记录',
+                      style: IosType.section(colors)
+                          .copyWith(color: const Color(0xFFD1D1D6)),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '从这时开始。请保持这个画面打开，不要锁屏。',
-                      style: IosType.footnote(colors),
+                    GestureDetector(
+                      onTap: _glanceAtClock,
+                      behavior: HitTestBehavior.opaque,
+                      child: Text(
+                        active == null
+                            ? '准备中'
+                            : formatHm(
+                                active.startedAt.hour,
+                                active.startedAt.minute,
+                              ),
+                        style: IosType.largeTime(colors),
+                      ),
                     ),
+                    const SizedBox(height: 8),
+                    Text('点时间可以暂时调亮。请保持这个画面打开，不要锁屏。', style: noteStyle),
                     const SizedBox(height: 28),
                     Row(
                       children: [
@@ -138,16 +169,35 @@ class _SleepScreenState extends State<SleepScreen> {
                     ),
                     if (session.note != null) ...[
                       const SizedBox(height: 16),
-                      Text(session.note!, style: IosType.footnote(colors)),
+                      Text(session.note!, style: noteStyle),
                     ],
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Text('亮度', style: noteStyle),
+                        Expanded(
+                          child: CupertinoSlider(
+                            value: _level,
+                            min: _dimmest,
+                            max: 1,
+                            activeColor: colors.accent,
+                            onChanged: (value) {
+                              _glanceTimer?.cancel();
+                              setState(() => _level = value);
+                              unawaited(_apply(value));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     Expanded(
                       child: events.isEmpty
                           ? Align(
                               alignment: Alignment.topLeft,
                               child: Text(
-                                '安静的时候不会记。低沉的声音记为鼾声，更像说话的声音记为梦话，手机明显晃动记为异动。不保存录音，也不上传。',
-                                style: IosType.footnote(colors),
+                                '要连续大约两秒才记。鼾声还要落在偏低的频段里，单次晃动先不记。峰值是相对手机满幅的响度，不是房间里的分贝计。不保存录音，也不上传。',
+                                style: noteStyle,
                               ),
                             )
                           : ListView.separated(
@@ -156,16 +206,12 @@ class _SleepScreenState extends State<SleepScreen> {
                                   Divider(height: 1, color: colors.separator),
                               itemBuilder: (context, index) {
                                 final event = events[events.length - 1 - index];
-                                final clock = formatHm(
-                                  event.startedAt.hour,
-                                  event.startedAt.minute,
-                                );
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
                                   ),
                                   child: Text(
-                                    '$clock  ${event.kind.label}',
+                                    event.line,
                                     style: IosType.row(colors),
                                   ),
                                 );
